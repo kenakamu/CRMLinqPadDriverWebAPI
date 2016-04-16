@@ -1,0 +1,17 @@
+﻿<Window x:Class="Microsoft.Pfe.Xrm.View.CrmLogin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:CrmLoginCtrl="clr-namespace:Microsoft.Xrm.Tooling.CrmConnectControl;assembly=Microsoft.Xrm.Tooling.CrmConnectControl" 
+        Title="CRM Login" Width="465" Height="471"
+        ResizeMode="NoResize" 
+        SizeToContent="Height"
+        WindowStartupLocation="CenterScreen" 
+        WindowStyle="None"
+        AllowsTransparency="True" 
+        BorderThickness="1" 
+        BorderBrush="#173561"
+        Loaded="Window_Loaded">
+    <Grid>
+        <CrmLoginCtrl:CrmServerLoginControl Name="CrmLoginCtrl" Grid.Row="1" ShowTitle="False"  Margin="10,5" VerticalAlignment="Bottom" />
+    </Grid>
+</Window>

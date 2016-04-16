@@ -1,0 +1,86 @@
+﻿<Window x:Class="Microsoft.Pfe.Xrm.View.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converter="clr-namespace:Microsoft.Pfe.Xrm.Converter"
+        Title="Dynamics CRM Mobile SDK Tools" Height="230" Width="700"
+        SizeToContent="Height"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <ResourceDictionary>
+            <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <SolidColorBrush x:Key="MAIN_COLOR" Color="#002050"/>            
+            <Style TargetType="TextBlock">
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="Margin" Value="0,4,10,4"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>            
+            <Style TargetType="Button">
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="Margin" Value="0,4"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Background" Value="{StaticResource MAIN_COLOR}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Width" Value="150"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+            </Style>           
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid x:Name="myGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>           
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Background="{StaticResource MAIN_COLOR}" >
+            <StackPanel VerticalAlignment="Center" Margin="20,0">
+                <TextBlock Text="Linq Pad Driver for Dynamics CRM (Web API)" Foreground="White" FontSize="24" />
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1" Margin="20,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>                
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <Grid>
+                <StackPanel Visibility="{Binding IsLoginVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <CheckBox IsChecked="{Binding IsAutoRegister}">Register to Azure AD automatically. If app is already registered, reusing it.</CheckBox>
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsAutoRegister, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}">
+                        <Label>Enter ClientId:</Label>
+                        <TextBox Width="300" Text="{Binding ClientId}" Margin="12,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding IsAutoRegister, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}">
+                        <Label>Enter RedirectUri:</Label>
+                        <TextBox Width="300" Text="{Binding RedirectUri}" Margin="12,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Row="1" Margin="20,10,20,0" IsEnabled="{Binding !IsLoaded}" Visibility="{Binding IsNewConnection, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Button Content="Login to CRM" HorizontalAlignment="Left" Width="150" Command="{Binding LoginCommand}"/>
+            </Grid>
+            <Grid Grid.Row="1" Margin="20,10,20,0" Visibility="{Binding IsNewConnection, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}">
+                <Button Content="Change Credential" HorizontalAlignment="Left" Width="150" Command="{Binding ChangeCredentialCommand}"/>
+            </Grid>
+            <Grid Grid.Row="2" Margin="20,10,20,0" Visibility="{Binding IsNewConnection, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}">
+                <Button Content="Reload Data" HorizontalAlignment="Left" Width="150" Command="{Binding ReloadCommand}" />
+            </Grid>
+            <Grid Grid.Row="3" Margin="20,10,20,0" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=true}">
+                <Button HorizontalAlignment="Left" Width="150" Click="Button_Click">Exit</Button>
+            </Grid>
+            <Grid Grid.Row="4">
+                <TextBlock Text="{Binding Message}"/>
+            </Grid>
+        </Grid>        
+        <Grid Grid.RowSpan="3" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"  
+              Height="auto" Width="700" Opacity=".9" Background="Gray">
+            <Grid VerticalAlignment="Center" Margin="150,0" >
+                <ProgressBar IsIndeterminate="{Binding IsLoading,Mode=TwoWay}" 
+                     Height="30" Foreground="{StaticResource MAIN_COLOR}"/>
+                <TextBlock Text="{Binding LoadMessage}" Foreground="{StaticResource MAIN_COLOR}" FontSize="18" Margin="30,0"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
