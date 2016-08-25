@@ -427,8 +427,10 @@ namespace Microsoft.Pfe.Xrm.ViewModel
                 .ExecuteAsync().Result.CurrentPage.FirstOrDefault();
 
             // If it is already registered, then return existing clientid.
-            if (existingApp != null)
+            if (existingApp != null && existingApp.RequiredResourceAccess.Count() == 2)
                 return existingApp.AppId;
+            else
+                existingApp.DeleteAsync().Wait();
 
             // Instantiate Application to Azure AD.
             IApplication myapp = new Microsoft.Azure.ActiveDirectory.GraphClient.Application();
