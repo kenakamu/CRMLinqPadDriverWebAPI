@@ -464,7 +464,7 @@ namespace Microsoft.Pfe.Xrm.ViewModel
             // Set permissions.
             // Get Microsoft.Azure.ActiveDirectory Service.
             var service1 = activeDirectoryClient.ServicePrincipals
-                .Where(x => x.DisplayName == "Microsoft.Azure.ActiveDirectory")
+                .Where(x => x.AppId == "00000002-0000-0000-c000-000000000000")
                 .ExecuteAsync().Result.CurrentPage.FirstOrDefault();
 
             // Instantiate UserProfile.Read OAuth2PermissionGrant for the Service
@@ -472,7 +472,7 @@ namespace Microsoft.Pfe.Xrm.ViewModel
             grant0.ClientId = createdService.ObjectId;
             grant0.ResourceId = service1.ObjectId;
             grant0.ConsentType = "AllPrincipals";
-            grant0.Scope = "UserProfile.Read";
+            grant0.Scope = "User.Read";
             grant0.ExpiryTime = DateTime.Now.AddYears(1);
 
             // Create the OAuth2PermissionGrant
@@ -480,7 +480,7 @@ namespace Microsoft.Pfe.Xrm.ViewModel
 
             // Get Microsoft.CRM Service.
             var service2 = activeDirectoryClient.ServicePrincipals
-                .Where(x => x.DisplayName == "Microsoft.CRM")
+                .Where(x => x.AppId == "00000007-0000-0000-c000-000000000000")
                 .ExecuteAsync().Result.CurrentPage.FirstOrDefault();
 
             // Instantiate user_impersonation OAuth2PermissionGrant for the Service
