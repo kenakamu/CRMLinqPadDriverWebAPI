@@ -429,7 +429,8 @@ namespace Microsoft.Pfe.Xrm.ViewModel
             // If it is already registered, then return existing clientid.
             if (existingApp != null && existingApp.RequiredResourceAccess.Count() == 2)
                 return existingApp.AppId;
-            else
+            // If registered but no requiredresouces are added, then delete it once.
+            else if (existingApp != null && existingApp.RequiredResourceAccess.Count() == 0)
                 existingApp.DeleteAsync().Wait();
 
             // Instantiate Application to Azure AD.
@@ -640,7 +641,7 @@ namespace Microsoft.Pfe.Xrm.ViewModel
             using (var codeProvider = new CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v4.0" } }))
             {
                 var options = new CompilerParameters(
-                    "System.dll System.Core.dll System.Xml.dll System.Runtime.Serialization.dll".Split(' '),
+                    "System.dll System.Core.dll System.Xml.dll System.Xml.ReaderWriter.dll System.Runtime.dll System.Runtime.Serialization.dll".Split(' '),
                     name,
                     false);
                 // Force load Microsoft.Xrm.Sdk assembly.
