@@ -138,7 +138,7 @@ namespace Microsoft.Pfe.Xrm.ViewModel
         private CrmProperties props;
         private string contextName;
         private bool useCurrentUser;
-        private string metadataFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "$metadata.xml");
+        private string metadataFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "{0}$metadata.xml");
         private IConnectionInfo cxInfo;
 
         #endregion
@@ -376,6 +376,7 @@ namespace Microsoft.Pfe.Xrm.ViewModel
             // Download metadata from Web API endpoint.
             var response = await httpClient.GetAsync(props.OrgUri + "/api/data/v" + props.Version + "/$metadata");
             var metadata = await response.Content.ReadAsStringAsync();
+            metadataFilePath = string.Format(metadataFilePath, props.OrgUri.GetHashCode());
             // Delete file if exist
             File.Delete(metadataFilePath);
 
@@ -621,9 +622,9 @@ namespace Microsoft.Pfe.Xrm.ViewModel
                 assemblyFullName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, props.OrgUri.GetHashCode() + "ContextAlternative.dll");
 
             props._cxInfo.CustomTypeInfo.CustomAssemblyPath = assemblyFullName;
-
+            var code = odataClient.TransformText();
             // Compile the code into the assembly. To avoid duplicate name for each connection, hash entire URL to make it unique.
-            BuildAssembly(odataClient.TransformText(), assemblyFullName);
+            BuildAssembly(code, assemblyFullName);
 
             // Update message.
             Message = "Loading Complete. Click Exit and wait a while until Linq Pad displays full Schema information.";

@@ -102,12 +102,14 @@ THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
             this.Write(this.ToStringHelper.ToStringWithCulture(template.TransformText()));
+            this.Write("\r\n");
 
     foreach (string warning in context.Warnings)
     {
         this.Warning(warning);
     }
 
+            this.Write("\r\n");
             return this.GenerationEnvironment.ToString();
         }
         private global::Microsoft.VisualStudio.TextTemplating.ITextTemplatingEngineHost hostValue;
@@ -498,7 +500,12 @@ public class CodeGenerationContext
     /// </summary>
     private readonly XElement edmx;
 
-    /// <summary>
+	/// <summary>
+    /// MetadataDocumentUri has to be set to a local file path, or the client code generation process will fail.
+    /// </summary>            
+	private readonly Uri metadatadocumentUri;
+    
+	/// <summary>
     /// The namespacePrefix is used as the only namespace in generated code when there's only one schema in edm model,
     /// and as a prefix for the namespace from the model with multiple schemas. If this argument is null, the
     /// namespaces from the model are used for all types.
@@ -548,6 +555,7 @@ public class CodeGenerationContext
     public CodeGenerationContext(Uri metadataUri, string namespacePrefix)
         : this(GetEdmxStringFromMetadataPath(metadataUri), namespacePrefix)
     {
+		this.metadatadocumentUri = metadataUri;
     }
 
     /// <summary>
@@ -806,6 +814,14 @@ public class CodeGenerationContext
     {
         get;
         set;
+    }
+
+	/// <summary>
+	/// MetadataDocumentUri has to be set to a local file path, or the client code generation process will fail.
+	/// </summary>
+	public Uri MetadatadocumentUri
+    {
+        get { return this.metadatadocumentUri; }
     }
 
     /// <summary>
@@ -1126,7 +1142,7 @@ public abstract class ODataClientTemplate : TemplateBase
     internal abstract void WriteContextEntitySetProperty(string entitySetName, string entitySetFixedName, string originalEntitySetName, string entitySetElementTypeName, bool inContext = true);
     internal abstract void WriteContextSingletonProperty(string singletonName, string singletonFixedName, string originalSingletonName, string singletonElementTypeName, bool inContext = true);
     internal abstract void WriteContextAddToEntitySetMethod(string entitySetName, string originalEntitySetName, string typeName, string parameterName);
-    internal abstract void WriteGeneratedEdmModel(string escapedEdmxString);
+    internal abstract void WriteGeneratedEdmModel(string escapedEdmxString, string metadataUri);
     internal abstract void WriteClassEndForEntityContainer();
     internal abstract void WriteSummaryCommentForStructuredType(string typeName);
     internal abstract void WriteKeyPropertiesCommentAndAttribute(IEnumerable<string> keyProperties, string keyString);
@@ -1524,7 +1540,7 @@ public abstract class ODataClientTemplate : TemplateBase
             if (this.context.EnableNamingAlias)
             {
                 camelCaseEntitySetName = Customization.CustomizeNaming(camelCaseEntitySetName);
-        }
+			}
 
             this.WriteContextAddToEntitySetMethod(camelCaseEntitySetName, entitySet.Name, GetFixedName(entitySetElementTypeName), parameterName);
         }
@@ -1548,7 +1564,7 @@ public abstract class ODataClientTemplate : TemplateBase
             }
         }
 
-        this.WriteGeneratedEdmModel(Utils.SerializeToString(this.context.Edmx).Replace("\"", "\"\""));
+        this.WriteGeneratedEdmModel(Utils.SerializeToString(this.context.Edmx).Replace("\"", "\"\""), this.context.MetadatadocumentUri.LocalPath);
         
         bool hasOperationImport = container.OperationImports().OfType<IEdmOperationImport>().Any();
         foreach (IEdmFunctionImport functionImport in container.OperationImports().OfType<IEdmFunctionImport>())
@@ -3718,7 +3734,7 @@ this.Write(");\r\n        }\r\n");
 
     }
 
-    internal override void WriteGeneratedEdmModel(string escapedEdmxString)
+    internal override void WriteGeneratedEdmModel(string escapedEdmxString, string metadataUri)
     {
 
 this.Write("        [global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"Microsoft.OData." +
@@ -3774,12 +3790,8 @@ this.Write("\")]\r\n            private static global::Microsoft.OData.Edm.IEdmM
 
 this.Write(this.ToStringHelper.ToStringWithCulture(T4Version));
 
-this.Write("\")]\r\n            private const string Edmx = @\"");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(escapedEdmxString));
-
-this.Write("\";\r\n            [global::System.CodeDom.Compiler.GeneratedCodeAttribute(\"Microsof" +
-        "t.OData.Client.Design.T4\", \"");
+this.Write("\")]\r\n            private const string Edmx = @\"\";\r\n            [global::System.Co" +
+        "deDom.Compiler.GeneratedCodeAttribute(\"Microsoft.OData.Client.Design.T4\", \"");
 
 this.Write(this.ToStringHelper.ToStringWithCulture(T4Version));
 
@@ -3810,10 +3822,13 @@ this.Write(@""")]
 
 this.Write(this.ToStringHelper.ToStringWithCulture(T4Version));
 
-this.Write(@""")]
-            private static global::Microsoft.OData.Edm.IEdmModel LoadModelFromString()
-            {
-                global::System.Xml.XmlReader reader = CreateXmlReader(Edmx);
+this.Write("\")]\r\n            private static global::Microsoft.OData.Edm.IEdmModel LoadModelFr" +
+        "omString()\r\n            {\r\n                global::System.Xml.XmlReader reader =" +
+        " CreateXmlReader(global::System.IO.File.ReadAllText(@\"");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(metadataUri));
+
+this.Write(@"""));
                 try
                 {
                     return global::Microsoft.OData.Edm.Csdl.EdmxReader.Parse(reader, getReferencedModelFromMap);
@@ -3835,10 +3850,13 @@ this.Write("            [global::System.CodeDom.Compiler.GeneratedCodeAttribute(
 
 this.Write(this.ToStringHelper.ToStringWithCulture(T4Version));
 
-this.Write(@""")]
-            private static global::Microsoft.OData.Edm.IEdmModel LoadModelFromString()
-            {
-                global::System.Xml.XmlReader reader = CreateXmlReader(Edmx);
+this.Write("\")]\r\n            private static global::Microsoft.OData.Edm.IEdmModel LoadModelFr" +
+        "omString()\r\n            {\r\n                global::System.Xml.XmlReader reader =" +
+        " CreateXmlReader(File.ReadAllText(@\"");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(metadataUri));
+
+this.Write(@"""));
                 try
                 {
                     return global::Microsoft.OData.Edm.Csdl.EdmxReader.Parse(reader);
@@ -5709,7 +5727,7 @@ this.Write(")\r\n        End Sub\r\n");
 
     }
 
-    internal override void WriteGeneratedEdmModel(string escapedEdmxString)
+    internal override void WriteGeneratedEdmModel(string escapedEdmxString, string metadataUri)
     {
         escapedEdmxString = escapedEdmxString.Replace("\r\n", "\" & _\r\n \"");
 
@@ -5771,12 +5789,8 @@ this.Write("\")>  _\r\n            Private Shared ParsedModel As Global.Microsof
 
 this.Write(this.ToStringHelper.ToStringWithCulture(T4Version));
 
-this.Write("\")>  _\r\n            Private Const Edmx As String = \"");
-
-this.Write(this.ToStringHelper.ToStringWithCulture(escapedEdmxString));
-
-this.Write("\"\r\n            <Global.System.CodeDom.Compiler.GeneratedCodeAttribute(\"Microsoft." +
-        "OData.Client.Design.T4\", \"");
+this.Write("\")>  _\r\n            Private Const Edmx As String = \"\"\r\n            <Global.System" +
+        ".CodeDom.Compiler.GeneratedCodeAttribute(\"Microsoft.OData.Client.Design.T4\", \"");
 
 this.Write(this.ToStringHelper.ToStringWithCulture(T4Version));
 
@@ -5804,9 +5818,13 @@ this.Write(@""")>  _
 
 this.Write(this.ToStringHelper.ToStringWithCulture(T4Version));
 
-this.Write(@""")>  _
-            Private Shared Function LoadModelFromString() As Global.Microsoft.OData.Edm.IEdmModel
-                Dim reader As Global.System.Xml.XmlReader = CreateXmlReader(Edmx)
+this.Write("\")>  _\r\n            Private Shared Function LoadModelFromString() As Global.Micro" +
+        "soft.OData.Edm.IEdmModel\r\n                Dim reader As Global.System.Xml.XmlRea" +
+        "der = CreateXmlReader(Global.System.IO.File.ReadAllText(@\"");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(metadataUri));
+
+this.Write(@"""))
                 Try
                     Return Global.Microsoft.OData.Edm.Csdl.EdmxReader.Parse(reader, AddressOf getReferencedModelFromMap)
                 Finally
@@ -5825,9 +5843,13 @@ this.Write("            <Global.System.CodeDom.Compiler.GeneratedCodeAttribute(\
 
 this.Write(this.ToStringHelper.ToStringWithCulture(T4Version));
 
-this.Write(@""")>  _
-            Private Shared Function LoadModelFromString() As Global.Microsoft.OData.Edm.IEdmModel
-                Dim reader As Global.System.Xml.XmlReader = CreateXmlReader(Edmx)
+this.Write("\")>  _\r\n            Private Shared Function LoadModelFromString() As Global.Micro" +
+        "soft.OData.Edm.IEdmModel\r\n                Dim reader As Global.System.Xml.XmlRea" +
+        "der = CreateXmlReader(Global.System.IO.File.ReadAllText(@\"");
+
+this.Write(this.ToStringHelper.ToStringWithCulture(metadataUri));
+
+this.Write(@"""))
                 Try
                     Return Global.Microsoft.OData.Edm.Csdl.EdmxReader.Parse(reader)
                 Finally
