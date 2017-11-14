@@ -3,8 +3,8 @@
 This is LINQPad driver which enables you to connect to your Microsoft Dynamics CRM Web API and run LINQ queries.
 
 ## How to use this
-Please see the blog for detail.  [CRM in the Field](https://blogs.msdn.microsoft.com/crminthefield/2016/03/14/linqpad-45-driver-for-dynamics-crm-web-api-is-available-on-codeplex/)<br/>
-This driver supports Dynamics CRM On-Premise, IFD and Online. Each has slightly different usage.
+Please see [HowTo.md](.\HowTo.md)<br/>
+This driver supports Dynamics 365/CRM 2016 On-Premise, IFD and Online. Each has slightly different usage.
 
 ### On-Premise
 If you are using On-Premise without Claim authentication, you can simply use Windows Authentication. So no additional work is required.
@@ -43,8 +43,7 @@ Make sure to mark the application availableToOtherTenants to true.
 Please let us know what's working, what isn't, as well as suggestions for new capabilities by submitting a new issue
 
 #### Connect
-In addition to providing feedback on this project site, we'd love to hear directly from you! <br/>
-See what we're up to via our MSDN blog, [CRM in the Field](https://blogs.msdn.microsoft.com/crminthefield) or follow us on Twitter[@pfedynamics](@pfedynamics)
+In addition to providing feedback on this project site, we'd love to hear directly from you! <br/> Please use Issues in this GitHub.
 
 #### Additional Information
 This solution uses Context generated from Web API endpoint metadata file displays corresponding OData query.

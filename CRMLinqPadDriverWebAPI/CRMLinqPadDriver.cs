@@ -34,7 +34,7 @@ namespace Microsoft.Pfe.Xrm
         // Author
         public override string Author
         {
-            get { return "Dynamics CRM PFE"; }
+            get { return "Kenichiro Nakamura"; }
         }
 
         // Display Name for connection.
@@ -47,7 +47,7 @@ namespace Microsoft.Pfe.Xrm
         // Display Name for Driver.
         public override string Name
         {
-            get { return "Dynamics CRM Web API Linq Pad Driver"; }
+            get { return "Dynamics 365 CE Web API Linq Pad Driver"; }
         }
 
         /// <summary>

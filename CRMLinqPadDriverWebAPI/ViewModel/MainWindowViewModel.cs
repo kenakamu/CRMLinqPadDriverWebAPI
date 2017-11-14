@@ -56,7 +56,7 @@ namespace Microsoft.Pfe.Xrm.ViewModel
                 NotifyPropertyChanged();
             }
         }
-
+     
         private bool isAutoRegister;
         public bool IsAutoRegister
         {
@@ -68,8 +68,19 @@ namespace Microsoft.Pfe.Xrm.ViewModel
             }
         }
 
+        private bool isAdvancedSettings;
+        public bool IsAdvancedSettings
+        {
+            get { return isAdvancedSettings; }
+            set
+            {
+                isAdvancedSettings = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         #endregion
-        
+
         private string registerText;
         public string RegisterText
         {
@@ -119,6 +130,16 @@ namespace Microsoft.Pfe.Xrm.ViewModel
             set
             {
                 props.RedirectUri = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        public string APIVersion
+        {
+            get { return props.Version; }
+            set
+            {
+                props.Version = value;
                 NotifyPropertyChanged();
             }
         }
@@ -181,12 +202,12 @@ namespace Microsoft.Pfe.Xrm.ViewModel
 
             // Let UI go.
             await Task.Delay(1);
-            
+
             if (ctrl.CrmConnectionMgr != null && ctrl.CrmConnectionMgr.CrmSvc != null && ctrl.CrmConnectionMgr.CrmSvc.IsReady)
             {
                 IsLoading = true;
 
-                LoadMessage = "Signing to Dynamics CRM....";
+                LoadMessage = "Signing to Dynamics 365 CE....";
 
                 // Assign local property
                 props.OrgUri = ctrl.CrmConnectionMgr.ConnectedOrgPublishedEndpoints[EndpointType.WebApplication];
@@ -197,7 +218,7 @@ namespace Microsoft.Pfe.Xrm.ViewModel
                     props.Authority = await DiscoveryAuthority();
                 else if (props.AuthenticationProviderType == "Federation")
                     props.Authority = ctrl.CrmConnectionMgr.CrmSvc.OrganizationServiceProxy.ServiceConfiguration.CurrentIssuer.IssuerAddress.Uri.AbsoluteUri.Replace(ctrl.CrmConnectionMgr.CrmSvc.OrganizationServiceProxy.ServiceConfiguration.CurrentIssuer.IssuerAddress.Uri.AbsolutePath, "/adfs/ls");
-                
+
                 // Store User Credentials.
                 ClientCredentials credentials = ctrl.CrmConnectionMgr.CrmSvc.OrganizationServiceProxy.ClientCredentials;
                 if (credentials.UserName.UserName != null)
@@ -213,16 +234,17 @@ namespace Microsoft.Pfe.Xrm.ViewModel
                 }
 
                 // Version
-                if (ctrl.CrmConnectionMgr.CrmSvc.ConnectedOrgVersion != null)
+                if (IsAdvancedSettings && !string.IsNullOrEmpty(APIVersion))
+                    props.Version = APIVersion;
+                else if (ctrl.CrmConnectionMgr.CrmSvc.ConnectedOrgVersion != null)
                     props.Version = ctrl.CrmConnectionMgr.CrmSvc.ConnectedOrgVersion.ToString();
                 else
                     props.Version = await CheckVersion();
-                
-                if(Version.Parse(props.Version).Major < 8)
+
+                if (Version.Parse(props.Version).Major < 8)
                     MessageBox.Show("WebAPI is available after Dynamics CRM 2016 only.");
                 else
                     isSuccess = true;
-
                 IsLoading = false;
             }
             else
@@ -259,7 +281,7 @@ namespace Microsoft.Pfe.Xrm.ViewModel
         }
 
         /// <summary>
-        /// Get Dynamics CRM Organization version 
+        /// Get Dynamics 365 CE Organization version 
         /// </summary>
         /// <returns>Version Number</returns>
         public async Task<string> CheckVersion()
