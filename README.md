@@ -3,7 +3,7 @@
 This is LINQPad driver which enables you to connect to your Microsoft Dynamics CRM Web API and run LINQ queries.
 
 ## How to use this
-Please see [HowTo.md](.\HowTo.md)<br/>
+Please see [HowTo.md](HowTo.md)<br/>
 This driver supports Dynamics 365/CRM 2016 On-Premise, IFD and Online. Each has slightly different usage.
 
 ### On-Premise
